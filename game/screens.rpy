@@ -257,6 +257,8 @@ screen quick_menu():
             textbutton _("Б.Сохр") action QuickSave()
             textbutton _("Б.Загр") action QuickLoad()
             textbutton _("Опции") action ShowMenu('preferences')
+            if dormroom_bag:
+                textbutton _("Инвентарь БЛИНБ") action [Show("re_inventory")]
 
 
 ## Данный код гарантирует, что экран быстрого меню будет показан в игре в любое
@@ -265,6 +267,7 @@ init python:
     config.overlay_screens.append("quick_menu")
 
 default quick_menu = True
+default dormroom_bag = False
 
 style quick_button is default
 style quick_button_text is button_text

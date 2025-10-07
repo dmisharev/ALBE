@@ -1,28 +1,42 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 112, in script
-    if dormroom_shower = 0:
-SyntaxError: invalid syntax (game/script.rpy, line 112)
+Exception: Couldn't find a place to stop rolling back. Perhaps the script changed in an incompatible way?
 
 -- Full Traceback ------------------------------------------------------------
 
-Full traceback:
-  File "game/script.rpy", line 112, in script
-    if dormroom_shower = 0:
-  File "C:\Users\dmish\Downloads\renpy-8.2.0-sdk\renpy\ast.py", line 1842, in execute
-    if renpy.python.py_eval(condition):
-  File "C:\Users\dmish\Downloads\renpy-8.2.0-sdk\renpy\python.py", line 1207, in py_eval
-    code = py_compile(code, 'eval')
-  File "C:\Users\dmish\Downloads\renpy-8.2.0-sdk\renpy\python.py", line 1144, in py_compile
-    raise e
-  File "C:\Users\dmish\Downloads\renpy-8.2.0-sdk\renpy\python.py", line 1081, in py_compile
-    raise orig_e
-  File "C:\Users\dmish\Downloads\renpy-8.2.0-sdk\renpy\python.py", line 1073, in py_compile
-    tree = compile(source, filename, py_mode, ast.PyCF_ONLY_AST | flags, 1)
-SyntaxError: invalid syntax (game/script.rpy, line 112)
+Traceback (most recent call last):
+  File "renpy/common/00start.rpy", line 219, in script call
+    call _load_reload_game from _call__load_reload_game_1
+  File "renpy/common/00keymap.rpy", line 551, in script
+    python hide:
+  File "renpy/ast.py", line 1187, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/python.py", line 1260, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/common/00keymap.rpy", line 551, in <module>
+    python hide:
+  File "renpy/common/00keymap.rpy", line 565, in _execute_python_hide
+    renpy.load(renpy.session["_reload_slot"])
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/loadsave.py", line 636, in load
+    log.unfreeze(roots, label="_after_load")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/rollback.py", line 1145, in unfreeze
+    self.rollback(0, force=True, label=label, greedy=greedy, on_load=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/rollback.py", line 950, in rollback
+    self.load_failed()
+    ~~~~~~~~~~~~~~~~^^
+  File "renpy/rollback.py", line 864, in load_failed
+    raise Exception(
+        "Couldn't find a place to stop rolling back. Perhaps the script changed in an incompatible way?"
+    )
+Exception: Couldn't find a place to stop rolling back. Perhaps the script changed in an incompatible way?
 
-Windows-10-10.0.19045 AMD64
-Ren'Py 8.2.0.24012702
+Windows-11-10.0.22631-SP0 AMD64
+Ren'Py 8.4.1.25072401
 ALBE 1.0
-Sun Oct  5 18:17:54 2025
+Tue Oct  7 00:20:37 2025

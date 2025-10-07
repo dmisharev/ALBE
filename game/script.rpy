@@ -1,7 +1,6 @@
 ﻿define me = Character('Я', color="#c8ffc8")
 
 init:
-    define dormroom_bag = 0
     define dormroom_dressup = 0
     define dormroom_exit = 0
     define dormroom_kostikshit = 0
@@ -82,11 +81,11 @@ label scene_1_0:
 
     if result == "dormroom_bag":
 
-        $ dormroom_bag += 1
-
         "Ты поднимаешь с пола свою сумку."
         "Теперь у тебя появилась возможность носить с собой вещи!"
         me "Круто!"
+
+        $ dormroom_bag = True
 
         jump scene_1_0
 
@@ -102,7 +101,7 @@ label scene_1_0:
 
         else:
 
-            $ dormroom_dressup += 1
+            $ dormroom_dressup =+ 1
 
             me "Самое время выбрать себе наряд получше!"
             "Закончив с переодеванием, ты ещё раз осмотрел свою комнату."
@@ -134,12 +133,39 @@ label scene_1_0:
     if result == "dormroom_kostikshit":
         "Это вещи твоего соседа. Их не стоит трогать."
 
+        menu:
+
+            "Подобрать":
+
+                if not dormroom_bag:
+                    me "И куда я это положу? Нужна сумка."
+
+                else:
+
+                    "Ты подобрал пистолет."
+
+                    $ handgun = InventoryItem(
+                        "Handgun", 
+                        items_data["handgun"]["description"],
+                        items_data["handgun"]["image"],
+                        items_data["handgun"]["width"],
+                        items_data["handgun"]["height"],
+                        items_data["handgun"]["combinable"],
+                        items_data["handgun"]["combine_with"],
+                        items_data["handgun"]["result"]
+                    )
+
+                    $ re_inventory.add_item(handgun)
+
+            "Не подбирать":
+                me "Ну нафиг."
+
         jump scene_1_0
 
     if result == "dormroom_mystuff":
         "Ты подходишь к хаотично раскиданному хламу – твоим вещам."
 
-        if dormroom_bag == 0:
+        if not dormroom_bag:
             me "Так. Сначала надо найти, куда всё это сложить."
 
             jump scene_1_0
@@ -150,6 +176,20 @@ label scene_1_0:
 
             "Ты складываешь всё необходимое в свою сумку."
             me "Так. А теперь что?"
+            "Ты подобрал патроны."
+
+            $ ammo = InventoryItem(
+                "Handgun Ammo", 
+                items_data["handgun_ammo"]["description"],
+                items_data["handgun_ammo"]["image"],
+                items_data["handgun_ammo"]["width"],
+                items_data["handgun_ammo"]["height"],
+                items_data["handgun_ammo"]["combinable"],
+                items_data["handgun_ammo"]["combine_with"],
+                items_data["handgun_ammo"]["result"]
+            )
+
+            $ re_inventory.add_item(ammo)
 
             jump scene_1_0
 
