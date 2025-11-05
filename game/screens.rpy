@@ -257,9 +257,9 @@ screen quick_menu():
             textbutton _("Б.Сохр") action QuickSave()
             textbutton _("Б.Загр") action QuickLoad()
             textbutton _("Опции") action ShowMenu('preferences')
-            if dormroom_bag:
-                textbutton _("Инвентарь БЛИНБ") action [Show("re_inventory")]
-
+            textbutton _("Инвентарь") action Show("inventory")
+            textbutton _("Квесты") action Show("quests")
+            textbutton _("Статы") action Show("statistics")
 
 ## Данный код гарантирует, что экран быстрого меню будет показан в игре в любое
 ## время, если только игрок не скроет интерфейс.

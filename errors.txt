@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/screens.rpy", line 270: invalid syntax
-    = 0
-    ^
+File "game/script.rpy", line 355: invalid syntax. Perhaps you forgot a comma?
+    "Носимый вес": self.weight
+              ^
 
 Ren'Py Version: Ren'Py 8.4.1.25072401
-Mon Oct  6 23:45:32 2025
+Tue Nov  4 15:52:59 2025
