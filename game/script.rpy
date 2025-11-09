@@ -103,40 +103,62 @@ screen dormroom_screen:
 
 
 
+
+
+
+
+
+
+
+
 # ==================================================================
-# ИНВЕНТАРЬ (https://github.com/Patchmonk/Enhanced-Renpy-Inventory/tree/master)
+# ИНВЕНТАРЬ И ПРЕДМЕТЫ (https://discover-with-mia.itch.io/free-source-code-renpy-python-multipage-inventory-system)
 # ==================================================================
+
+init python:
+    class Item:
+        def __init__(self, name, stack, weight, description):
+            self.name = name
+            self.stack = stack
+            self.weight = weight
+            self.description = description
+
+    def create_items():
+        items = {}
+        items["Сковородка"] = Item(
+            name="Сковородка",
+            stack=1,
+            weight=2,
+            description="Дешевая сковородка из магазина под домом."
+        )
+        return items
+
+default items = create_items()
 
 init python:
     class Inventory:
         def __init__(self, slot_count=15, unlocked_slots=0):
             self.slot_count = slot_count
             self.unlocked_slots = unlocked_slots
-            self.max_items_per_slot = 1
             self.slots = [{} for _ in range(self.slot_count)]
 
-        def add_item(self, item, quantity=1):
+        def add_item(self, item, quantity):
             renpy.notify(f"{item} +{quantity}")
             if self.unlocked_slots == 0:
                 return
-
             remaining_quantity = quantity
-
-            # First, try to add to existing slots with the same item
             for slot in range(self.unlocked_slots):
                 if item in self.slots[slot]:
-                    space_left = self.max_items_per_slot - self.slots[slot][item]
+                    space_left = item.stack - self.slots[slot][item]
                     if space_left > 0:
                         add_quantity = min(remaining_quantity, space_left)
                         self.slots[slot][item] += add_quantity
                         remaining_quantity -= add_quantity
                         if remaining_quantity == 0:
                             return
-
-            # Next, try to add to empty slots
             for slot in range(self.unlocked_slots):
                 if not self.slots[slot]:
-                    add_quantity = min(remaining_quantity, self.max_items_per_slot)
+                    add_quantity = min(remaining_quantity, quantity)
                     self.slots[slot][item] = add_quantity
                     remaining_quantity -= add_quantity
                     if remaining_quantity == 0:
@@ -145,9 +167,7 @@ init python:
         def remove_item(self, item, quantity=1):
             if quantity <= 0:
                 return
-
             original_quantity = quantity
-
             for slot in range(self.slot_count):
                 if item in self.slots[slot]:
                     if quantity >= self.slots[slot][item]:
@@ -158,11 +178,10 @@ init python:
                         quantity = 0
                     if quantity <= 0:
                         break
-
             if quantity > 0:
-                self.sort_inventory()  # Call sort_inventory after removal
+                self.sort_inventory()
             else:
-                self.sort_inventory()  # Call sort_inventory after removal
+                self.sort_inventory()
 
         def sort_inventory(self):
             sorted_slots = [{} for _ in range(self.slot_count)]
@@ -172,7 +191,6 @@ init python:
                 if self.slots[slot]:
                     sorted_slots[current_slot] = self.slots[slot]
                     current_slot += 1
-
             self.slots = sorted_slots
 
         def increase_slot_count(self, additional_slots):
@@ -198,116 +216,60 @@ init python:
             for slot in self.slots:
                 if item in slot:
                     total += slot[item]
-            return total >= quantity  # Returns True if inventory has at least 'quantity' of item
-
-# close icon 
-image close:
-    "close.png"
-    size(30,30)
-    
-image close_hover:
-    "close_hover.png"
-    size(30,30)
-
-style inventory_frame is frame:
-    xsize 840
-    ysize 570
-    xalign 0.5
-    yalign 0.5
-    background "Inventory_frame_BG.png"
-
-style close_btn:
-    xpos 795
-    ypos 5
-
-style inventory_title:
-    size 30
-    pos (0, -20)
-    color Color((222, 222, 222, 255))
-
-style dummy is text:
-    size 6
-
-style inventory_container is vbox:
-    xpos 30
-    ypos 30
-
-style inventory_grid is vpgrid:
-    spacing 5
-
-style inventory_scrollbar is scrollbar:
-    xsize 1105
-    ysize 450
-
-style inventory_item_name is text:
-    size 14
-    bold True
-    color Color((251, 251, 251, 255))
-    pos (2,0)
-
-style inventory_item_quantity is text:
-    size 12
-    bold True
-    color Color((251, 251, 251, 255))
-    text_align 1.0
-    pos (135, 135)
-    xanchor 1.0
-    yanchor 1.0
-
-style hud_frame is frame:
-    xpadding 10
-    ypadding 10
-    xalign 0.5
-    yalign 0.0
+            return total >= quantity
 
 screen inventory():
     tag ALBE
     modal True
+    default current_description = ""
     frame:
-
-        style "inventory_frame"
-        hbox:
-            imagebutton:
-                style "close_btn"
-                idle "close"
-                hover "close_hover"
+        xalign 0.5
+        yalign 0.5
+        padding (20, 20)
+        vbox:
+            label "Инвентарь" xalign 0.5
+            text "[current_description]" size 20 xalign 0.5
+            spacing 20
+            hbox:
+                spacing 20
+                grid 5 3:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 20
+                    transpose False
+                    for slot in range(inventory.slot_count):
+                        if inventory.is_slot_unlocked(slot):
+                            frame:
+                                xsize 150
+                                ysize 150
+                                if inventory.slots[slot]:
+                                    for item_name, quantity in inventory.slots[slot].items():
+                                        $ current_item = items[item_name]
+                                        add Image(item_name + ".png") xalign 0.5 yalign 0.5 size (100, 100)
+                                        $ Inv_item_quantity = f"x{quantity}"
+                                        text "[item_name]":
+                                            size 15
+                                            pos (2,0)
+                                        text Inv_item_quantity:
+                                            size 12
+                                            text_align 1.0
+                                            pos (135, 135)
+                                            xanchor 1.0
+                                            yanchor 1.0
+                                        button:
+                                             hovered SetScreenVariable ("current_description", current_item.description)
+                                             unhovered SetScreenVariable ("current_description", "")
+                                             action NullAction()
+                                             xfill True
+                                             yfill True
+                                else:
+                                    null
+                        else:
+                            null
+            textbutton "Закрыть" xalign 0.5:
                 action Hide("inventory")
 
-        vbox:
-            style "inventory_container"
-            text "МОЙ ХАБАР" style "inventory_title"
 
-            viewport id "vp":
-                ysize 570
-                draggable True
-                mousewheel True
-                scrollbars "vertical"
-                vscrollbar_xsize 8
-                vscrollbar_ysize 470
-                vscrollbar_ypos 0
-                vscrollbar_xpos -37
-                vscrollbar_base_bar "inv_vscrollbar_base_bar.png" 
-                vscrollbar_thumb "inv_vscrollbar_thumb.png"
-                vscrollbar_unscrollable "hide"
-
-                vpgrid cols 5:
-                    style "inventory_grid"
-
-                    for slot in range(inventory.slot_count):
-                        frame:
-                            maximum(155, 155)
-                            if inventory.is_slot_unlocked(slot):
-                                background Image("slot_bg.png")
-                                if inventory.slots[slot]:
-                                    for item, quantity in inventory.slots[slot].items():
-                                        add Image(item + ".png") xalign 0.5 yalign 0.5 size (120, 120)
-                                        $ Inv_item_name = item.replace('_', ' ')
-                                        $ Inv_item_quantity = f"x{quantity}"
-                                      
-                                        text Inv_item_name style "inventory_item_name"
-                                        text Inv_item_quantity style "inventory_item_quantity"
-                            else:
-                                background Image("locked_slot_bg.png")
 
 
 
@@ -418,17 +380,77 @@ screen statistics():
 
 init python:
     class Quest:
-        def __init__(self, name, description, available = False, completed = False):
-            self.name = name
-            self.description = description
-            self.available = available
-            self.completed = completed
 
-        @property
-        def should_show(self):
-            if self.available and not self.completed:
-                return True
-            return False
+        UNKNOWN = "неизвестен"
+        ACTIVE = "получен"
+        COMPLETED = "завершен"
+
+        def __init__(self, title, description, state=UNKNOWN):
+            self.title = title
+            self.description = description
+            self.state = state
+
+        def change_quest_status(self, new_state):
+            self.state = new_state
+            renpy.notify(f"Квест {self.title} – {self.state}")
+
+    if "quests" not in globals():
+        quests = []
+
+screen quests():
+    tag ALBE
+    modal True
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xpadding 30
+        ypadding 30
+        vbox:
+            spacing 70
+            vbox:
+                spacing 10
+                text "{b}Активные квесты{/b}"
+                for quest in quests:
+                    if quest.state == Quest.ACTIVE:
+                        text "[quest.title]:"
+                        text "{alpha=0.6}[quest.description]{/alpha}"
+            vbox:
+                spacing 10
+                text "{b}Закрытые квесты{/b}"
+                for quest in quests:
+                    if quest.state == Quest.COMPLETED:
+                        text "{alpha=0.6}[quest.title]{/alpha}"
+            textbutton _("Закрыть") action Hide("quests")
+
+default quest_dormroom_grass = Quest(title = "Потрогать траву", description = "Мне надо выйти из дома и поехать в институт.")
+default quest_dormroom_shower = Quest(title = "Принять душ", description = "После весёлой ночи мне стоит освежиться.")
+default quest_dormroom_clothes = Quest(title = "Одеться", description = "На улице не принято ходить голым.")
+default quest_dormroom_breakfast = Quest(title = "Позавтракать", description = "Голод не тётка. А как там дальше?")
+default quest_dormroom_stuff = Quest(title = "Собрать вещи", description = "Не стоит идти в институт с пустыми руками")
+
+label start:
+    $ quests.append(quest_dormroom_grass)
+    $ quests.append(quest_dormroom_shower)
+    $ quests.append(quest_dormroom_clothes)
+    $ quests.append(quest_dormroom_breakfast)
+    $ quests.append(quest_dormroom_stuff)
+    jump dormroom_quests
+
+
+
+
+
+
+
+
+
+# ==================================================================
+# ДОСТИЖЕНИЯ
+# ==================================================================
+
+
+
+
 
 
 
@@ -444,13 +466,26 @@ init python:
 # Инициализация инвентаря
 default inventory = Inventory()
 
-label start:
-
+label dormroom_quests:
     $ save_name = ('Протокол отчисления. Технодемка')
     $ renpy.block_rollback()
     $ renpy.pause(1, hard = True)
-
     scene dormroom with dissolve
+    pause(1.5)
+    $ quest_dormroom_grass.change_quest_status(Quest.ACTIVE)
+    pause(1.5)
+    $ quest_dormroom_shower.change_quest_status(Quest.ACTIVE)
+    pause(1.5)
+    $ quest_dormroom_clothes.change_quest_status(Quest.ACTIVE)
+    pause(1.5)
+    $ quest_dormroom_breakfast.change_quest_status(Quest.ACTIVE)
+    pause(1.5)
+    $ quest_dormroom_stuff.change_quest_status(Quest.ACTIVE)
+    pause(1.5)
+    jump dormroom
+
+
+label dormroom:
     call screen dormroom_screen()
     $ result = _return
 
@@ -462,7 +497,7 @@ label start:
         show me at left with dissolve
         me.c "Круто!"
         $ inventory.unlock_slots(10)
-        jump start
+        jump dormroom
 
     if result == "dormroom_mystuff":
         if dormroom_mystuff_seen == 0:
@@ -471,14 +506,15 @@ label start:
         if not dormroom_bag:
             show me at left with dissolve
             me.c "Сначала надо найти, куда всё это сложить."
-            jump start
+            jump dormroom
         else:
             $ dormroom_mystuff += 1
-            $ inventory.add_item("Картошка", quantity=5)
+            $ inventory.add_item("Сковородка", 1)
             "Ты складываешь всё необходимое в свою сумку."
+            $ quest_dormroom_stuff.change_quest_status(Quest.COMPLETED)
             show me at left with dissolve
             me.c "Так. А теперь что?"
-            jump start
+            jump dormroom
 
     if result == "dormroom_kostikshit":
         if dormroom_kostikshit_seen == 0:
@@ -487,25 +523,25 @@ label start:
             "Она как обычно заперта на замок."
             show me at left with dissolve
             me.c "Вероятно, он откроет её, когда выйдет из душа."
-            jump start
+            jump dormroom
         else:
             "Тумбочка заперта."
-            jump start
+            jump dormroom
         menu:
             "Подобрать":
                 if not dormroom_bag:
                     me.c "И куда я это положу? Нужна сумка."
-                    jump start
+                    jump dormroom
                 else:
                     $ dormroom_kostikshit = True
                     $ dormroom_skillet = True
-                    $ inventory.add_item("Сковородка", quantity=1)
+                    $ inventory.add_item("Сковородка", 1)
                     "Ты подобрал сковородку."
-                    jump start
+                    jump dormroom
             "Не подбирать":
                 $ dormroom_kostikshit = True
                 me.c "Ну на фиг."
-                jump start
+                jump dormroom
 
     if result == "dormroom_shower":
         if not dormroom_mystuff:
@@ -515,18 +551,19 @@ label start:
                 show me at left with dissolve
                 me.c "Ладно."
                 me.c "Пока что можно собрать вещи."
-                jump start
+                jump dormroom
             else:
                 "Душ всё ещё занят."
-                jump start
+                jump dormroom
         else:
             $ dormroom_shower = True
             "Твой сосед как раз закончил умываться и впустил тебя внутрь."
             show me at left with dissolve
             me.c "Теперь надо как следует отдраиться!"
             "После пяти минут жесткой помывки ты чувствуешь себя посвежевшим и готовым к новым свершениям!"
+            $ quest_dormroom_shower.change_quest_status(Quest.COMPLETED)
             $ dormroom_kostik = False
-            jump start
+            jump dormroom
 
     if result == "dormroom_kostik":
         show me at left with dissolve
@@ -545,14 +582,14 @@ label start:
         menu:
             "А где сковородка?" if dormroom_food_seen > 0 and not dormroom_skillet:
                 ko.c "Понятия не имею!"
-                jump start
+                jump dormroom
             "Зачем ты украл сковородку?" if dormroom_skillet and not ask_1:
                 $ ask_1 = True
                 ko.c "Я просто забыл положить её обратно."
                 with hpunch
                 ko.c "Ты рылся в моих вещах!?"
                 me.c "Я взял только сковородку!"
-                jump start
+                jump dormroom
             "Давай армрестлинг!":
                 ko.c "Давай!"
                 pause(2)
@@ -563,13 +600,13 @@ label start:
                     ko.c "Хорошо получилось! Ещё немного и дойдёшь до моего уровня!"
                 else:
                     ko.c "Не печалься! Может, в следующий раз получится!"
-                jump start
+                jump dormroom
 
     if result == "dormroom_food":
         if not dormroom_shower:
             show me at left with dissolve
             me.c "Кушать, конечно, хочется, но сначала лучше принять душ."
-            jump start
+            jump dormroom
         if not dormroom_skillet:
             $ dormroom_food_seen += 1
             "Ты подходишь к вашей микрокухне с намерением приготовить яичницу."
@@ -577,7 +614,7 @@ label start:
             me.c "А где сковородка?{w=0.5} Чёрт…"
             me.c "Я же только-только новую купил!"
             "Кажется, тебе придется довольствоваться чем-то другим."
-            jump start
+            jump dormroom
         else:
             $ dormroom_food = True
             if dormroom_skillet:
@@ -598,7 +635,8 @@ label start:
                 with fade
                 "Ты с удовольствием позавтракал!"
                 "{b}Достижение получено: Яичница!{/b}"
-                jump start
+                $ quest_dormroom_breakfast.change_quest_status(Quest.COMPLETED)
+                jump dormroom
             else:
                 show me at left with dissolve
                 me.c "С яичницей не сложилось, что тут ещё есть?"
@@ -609,7 +647,8 @@ label start:
                         "Сладкие хлопья с молоком навевают воспоминания о детстве."
                     "Чипсы с пивом":
                         "Вредная пища никогда не повредит. Или нет?"
-                jump start
+                $ quest_dormroom_breakfast.change_quest_status(Quest.COMPLETED)
+                jump dormroom
 
     if result == "dormroom_dressup":
         if dormroom_dressup_seen == 0:
@@ -618,28 +657,29 @@ label start:
             "Сейчас твой гардероб сравнительно небольшой, но со временем ты сможешь его расширить!"
         if dormroom_shower == 0:
             me.c "Сначала, наверное, стоит принять душ, чтобы два раза не переодеваться."
-            jump start
+            jump dormroom
         else:
             $ dormroom_dressup = True
             me.c "Самое время выбрать себе наряд получше!"
+            $ quest_dormroom_clothes.change_quest_status(Quest.COMPLETED)
             "Закончив с переодеванием, ты ещё раз осмотрел свою комнату."
-            jump start
+            jump dormroom
 
     if result == "dormroom_exit":
         show me at left with dissolve
         if not dormroom_shower:
             me.c "Преподы учуют запах раздолбая за километр."
             me.c "Пожалуй, перед выходом мне стоит принять душ."
-            jump start
+            jump dormroom
         elif not dormroom_mystuff:
             me.c "А как же мои вещи? Надо собраться!"
-            jump start
+            jump dormroom
         elif not dormroom_dressup:
             me.c "В таком виде я никуда не пойду."
             me.c "Для начала нужно одеться."
-            jump start
+            jump dormroom
         else:
             if not dormroom_food:
                 "Твой живот урчит, требуя подзарядки."
             "После непродолжительных сборов ты толкаешь дверь и выходишь на улицу."
-            jump start
+            jump dormroom

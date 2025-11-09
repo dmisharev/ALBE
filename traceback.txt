@@ -1,46 +1,124 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-NameError: name 'th' is not defined
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "game/script.rpy", line 456, in script
-    th "Вероятно, он откроет её, когда выйдет из душа."
-Exception: Sayer 'th' is not defined.
+  File "game/script.rpy", line 489, in script
+    call screen dormroom_screen()
+  File "game/script.rpy", line 221, in execute
+    screen inventory():
+  File "game/script.rpy", line 221, in execute
+    screen inventory():
+  File "game/script.rpy", line 225, in execute
+    frame:
+  File "game/script.rpy", line 229, in execute
+    vbox:
+  File "game/script.rpy", line 232, in execute
+    hbox:
+  File "game/script.rpy", line 234, in execute
+    grid 5 3:
+  File "game/script.rpy", line 239, in execute
+    for slot in range(inventory.slot_count):
+  File "game/script.rpy", line 240, in execute
+    if inventory.is_slot_unlocked(slot):
+  File "game/script.rpy", line 241, in execute
+    frame:
+  File "game/script.rpy", line 244, in execute
+    if inventory.slots[slot]:
+  File "game/script.rpy", line 245, in execute
+    for item_name, quantity in inventory.slots[slot].items():
+  File "game/script.rpy", line 248, in execute
+    $ Inv_item_name = item.replace('_', ' ')
+  File "game/script.rpy", line 248, in <module>
+    $ Inv_item_name = item.replace('_', ' ')
+                      ^^^^                  
+NameError: name 'item' is not defined. Did you mean: 'Item'?
 
 -- Full Traceback ------------------------------------------------------------
 
 Traceback (most recent call last):
-  File "renpy/ast.py", line 625, in eval_who
-    return renpy.python.py_eval(who)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "renpy/python.py", line 1292, in py_eval
-    return py_eval_bytecode(code, globals, locals)
-           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-  File "renpy/python.py", line 1285, in py_eval_bytecode
-    return eval(bytecode, globals, locals)
-           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<none>", line 1, in <module>
-NameError: name 'th' is not defined
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "game/script.rpy", line 456, in script
-    th "Вероятно, он откроет её, когда выйдет из душа."
-  File "renpy/ast.py", line 2915, in execute
-    Say.execute(self)
-    ~~~~~~~~~~~^^^^^^
-  File "renpy/ast.py", line 956, in execute
-    who = eval_who(self.who, self.who_fast)
-          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "renpy/ast.py", line 627, in eval_who
-    raise Exception("Sayer '%s' is not defined." % who)
-Exception: Sayer 'th' is not defined.
+  File "game/script.rpy", line 489, in script
+    call screen dormroom_screen()
+  File "renpy/ast.py", line 2231, in execute
+    self.call("execute")
+    ~~~~~~~~~^^^^^^^^^^^
+  File "renpy/ast.py", line 2195, in call
+    return renpy.statements.call(method, parsed, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/statements.py", line 379, in call
+    return method(parsed, *args, **kwargs)
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/common/000statements.rpy", line 695, in execute_call_screen
+    store._return = renpy.call_screen(name, *args, **kwargs)
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/exports/statementexports.py", line 348, in call_screen
+    rv = renpy.ui.interact(mouse="screen", type="screen", roll_forward=roll_forward)
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/ui.py", line 304, in interact
+    rv = renpy.game.interface.interact(roll_forward=roll_forward, **kwargs)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/display/core.py", line 2219, in interact
+    repeat, rv = self.interact_core(
+                 ~~~~~~~~~~~~~~~~~~^
+        preloads=preloads,
+        ^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )  # type: ignore
+    ^                
+  File "renpy/display/core.py", line 2757, in interact_core
+    root_widget.visit_all(lambda d: d.per_interact())
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/display/displayable.py", line 432, in visit_all
+    d.visit_all(callback, seen)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "renpy/display/displayable.py", line 432, in visit_all
+    d.visit_all(callback, seen)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "renpy/display/displayable.py", line 432, in visit_all
+    d.visit_all(callback, seen)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "renpy/display/screen.py", line 503, in visit_all
+    callback(self)
+    ~~~~~~~~^^^^^^
+  File "renpy/display/core.py", line 2757, in <lambda>
+    root_widget.visit_all(lambda d: d.per_interact())
+                                    ~~~~~~~~~~~~~~^^ 
+  File "renpy/display/screen.py", line 514, in per_interact
+    self.update()
+    ~~~~~~~~~~~^^
+  File "renpy/display/screen.py", line 715, in update
+    self.screen.function(**self.scope)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "game/script.rpy", line 221, in execute
+    screen inventory():
+  File "game/script.rpy", line 221, in execute
+    screen inventory():
+  File "game/script.rpy", line 225, in execute
+    frame:
+  File "game/script.rpy", line 229, in execute
+    vbox:
+  File "game/script.rpy", line 232, in execute
+    hbox:
+  File "game/script.rpy", line 234, in execute
+    grid 5 3:
+  File "game/script.rpy", line 239, in execute
+    for slot in range(inventory.slot_count):
+  File "game/script.rpy", line 240, in execute
+    if inventory.is_slot_unlocked(slot):
+  File "game/script.rpy", line 241, in execute
+    frame:
+  File "game/script.rpy", line 244, in execute
+    if inventory.slots[slot]:
+  File "game/script.rpy", line 245, in execute
+    for item_name, quantity in inventory.slots[slot].items():
+  File "game/script.rpy", line 248, in execute
+    $ Inv_item_name = item.replace('_', ' ')
+  File "game/script.rpy", line 248, in <module>
+    $ Inv_item_name = item.replace('_', ' ')
+                      ^^^^                  
+NameError: name 'item' is not defined. Did you mean: 'Item'?
 
 Windows-11-10.0.22631-SP0 AMD64
 Ren'Py 8.4.1.25072401
 ALBE 1.0
-Tue Nov  4 16:03:07 2025
+Sun Nov  9 02:19:33 2025
